@@ -1,0 +1,4 @@
+.idea/
+examples/datasets/sentiment/
+albert_tiny_zh_google/
+*/__pycache__/
