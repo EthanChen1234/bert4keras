@@ -21,18 +21,19 @@ dict_path = 'albert_tiny_zh_google/vocab.txt'
 
 
 def load_data(filename):
-    D = []
+    data = []
     with open(filename, encoding='utf-8') as f:
-        for l in f:
-            text, label = l.strip().split('\t')
-            D.append((text, int(label)))
-    return D
+        for line in f:
+            text, label = line.strip().split('\t')
+            data.append((text, int(label)))
+    return data
 
 
 # 加载数据集
-train_data = load_data('examples/datasets/sentiment/sentiment.train.data')
-valid_data = load_data('examples/datasets/sentiment/sentiment.valid.data')
-test_data = load_data('examples/datasets/sentiment/sentiment.test.data')
+# [('贝贝好爱干净 每天出门都要洗澡 还喜欢喝蒙牛 不喜欢蹲地方 喜欢坐凳子上还喜欢和我坐在一起~', 1), ...]
+train_data = load_data('./datasets/sentiment/sentiment.train.data')
+valid_data = load_data('./datasets/sentiment/sentiment.valid.data')
+test_data = load_data('./datasets/sentiment/sentiment.test.data')
 
 # 建立分词器
 tokenizer = Tokenizer(dict_path, do_lower_case=True)
@@ -62,16 +63,18 @@ bert = build_transformer_model(
     checkpoint_path=checkpoint_path,
     model='albert',
     return_keras_model=False,
-)
+)  # bert4keras.models.ALBERT object
 
-output = Lambda(lambda x: x[:, 0], name='CLS-token')(bert.model.output)
+# bert.model.output  # (?, ?, 312)
+
+output = Lambda(lambda x: x[:, 0], name='CLS-token')(bert.model.output)  # CLS-token, (?, 312)
 output = Dense(
     units=num_classes,
     activation='softmax',
     kernel_initializer=bert.initializer
-)(output)
+)(output)  # (?, 2)
 
-model = keras.models.Model(bert.model.input, output)
+model = keras.models.Model(bert.model.input, output)  # training model object
 model.summary()
 
 # 派生为带分段线性学习率的优化器。
@@ -112,7 +115,7 @@ class Evaluator(keras.callbacks.Callback):
         val_acc = evaluate(valid_generator)
         if val_acc > self.best_val_acc:
             self.best_val_acc = val_acc
-            model.save_weights('best_model.weights')
+            model.save_weights('./weights/best_model.weights')
         test_acc = evaluate(test_generator)
         print(
             u'val_acc: %.5f, best_val_acc: %.5f, test_acc: %.5f\n' %
@@ -128,5 +131,5 @@ model.fit_generator(
     callbacks=[evaluator]
 )
 
-model.load_weights('best_model.weights')
+model.load_weights('./weights/best_model.weights')
 print(u'final test acc: %05f\n' % (evaluate(test_generator)))

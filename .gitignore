@@ -1,4 +1,6 @@
 .idea/
-examples/datasets/sentiment/
+datasets/
 albert_tiny_zh_google/
 */__pycache__/
+chinese_L-12_H-768_A-12/
+weights/

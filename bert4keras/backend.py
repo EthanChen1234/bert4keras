@@ -46,9 +46,11 @@ def set_gelu(version):
     version = version.lower()
     assert version in ['erf', 'tanh'], 'gelu version must be erf or tanh'
     if version == 'erf':
+        # 提供定制类的作用域，在该作用域内全局定制类能够被更改，但在作用域结束后将回到初始状态。
         keras.utils.get_custom_objects()['gelu'] = gelu_erf
     else:
         keras.utils.get_custom_objects()['gelu'] = gelu_tanh
+
 
 
 def piecewise_linear(t, schedule):

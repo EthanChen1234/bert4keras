@@ -7,13 +7,16 @@ from bert4keras.snippets import open
 
 
 def load_vocab(dict_path, encoding='utf-8', simplified=False, startswith=None):
-    """从bert的词典文件中读取词典
+    """从bert的词典文件中读取词典, {'[PAD]': 0, '[unused1]': 1 ... }
     """
     token_dict = {}
     with open(dict_path, encoding=encoding) as reader:
         for line in reader:
             token = line.strip()
-            token_dict[token] = len(token_dict)
+            token_dict[token] = len(token_dict)  # 感觉麻烦
+        # for i, line in enumerate(reader):
+        #     token = line.strip()
+        #     token_dict[token] = i
 
     if simplified:  # 过滤冗余部分token
         new_token_dict, keep_tokens = {}, []
@@ -180,7 +183,7 @@ class Tokenizer(BasicTokenizer):
     def __init__(self, token_dict, do_lower_case=False, *args, **kwargs):
         """初始化
         """
-        super(Tokenizer, self).__init__(*args, **kwargs)
+        super(Tokenizer, self).__init__(*args, **kwargs)  # 调用父类的方法
         if is_string(token_dict):
             token_dict = load_vocab(token_dict)
 
@@ -443,3 +446,4 @@ class SpTokenizer(BasicTokenizer):
         """判断是否应该被解码输出
         """
         return (i < self._vocab_size) and not self._is_special(i)
+

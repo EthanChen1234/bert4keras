@@ -1848,7 +1848,6 @@ def build_transformer_model(
         configs['dropout_rate'] = configs.get('hidden_dropout_prob')
 
     model, application = model.lower(), application.lower()
-
     models = {
         'bert': BERT,
         'albert': ALBERT,
